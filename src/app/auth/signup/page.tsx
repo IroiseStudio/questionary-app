@@ -1,71 +1,128 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
+import Screen from '@/components/ui/screen'
+import {
+	Card,
+	CardContent,
+	CardFooter,
+	CardHeader,
+	CardTitle,
+} from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+
 export default function SignupPage() {
-  const router = useRouter()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
+	const router = useRouter()
+	const [email, setEmail] = useState('')
+	const [password, setPassword] = useState('')
+	const [error, setError] = useState<string | null>(null)
+	const [loading, setLoading] = useState(false)
+	const [message, setMessage] = useState<string | null>(null)
 
-  const handleSignup = async () => {
-    setLoading(true)
-    setError(null)
+	async function handleSignup(e?: React.FormEvent) {
+		e?.preventDefault()
+		if (loading) return
 
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-    })
+		setLoading(true)
+		setError(null)
+		setMessage(null)
 
-    if (error) {
-      setError(error.message)
-    } else {
-      router.push('/dashboard')
-    }
+		const { error, data } = await supabase.auth.signUp({ email, password })
 
-    setLoading(false)
-  }
+		if (error) {
+			setError(error.message)
+			setLoading(false)
+			return
+		}
 
-  return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-indigo-900 to-blue-700 px-4">
-      <div className="w-full max-w-md bg-white rounded-xl shadow-2xl p-8">
-        <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">Signup</h1>
+		// If email confirmations are enabled, Supabase will send a magic link.
+		if (data?.user && !data?.session) {
+			setMessage('Check your email to confirm your account.')
+			setLoading(false)
+			return
+		}
 
-        <input
-          type="email"
-          placeholder="Email"
-          className="w-full mb-4 px-4 py-2 text-gray-800 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+		// If you’ve disabled confirmations in Supabase (not recommended), you may get a session directly:
+		router.push('/dashboard')
+	}
 
-        <input
-          type="password"
-          placeholder="Password"
-          className="w-full mb-4 px-4 py-2 text-gray-800 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+	return (
+		<Screen className="flex items-center justify-center">
+			<Card className="w-full max-w-md p-6 glass">
+				<CardHeader className="text-center">
+					<CardTitle className="text-2xl">Create account</CardTitle>
+				</CardHeader>
 
-        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+				<CardContent>
+					<form onSubmit={handleSignup} className="space-y-4">
+						<div className="space-y-2">
+							<label htmlFor="email" className="text-sm text-muted">
+								Email
+							</label>
+							<input
+								id="email"
+								type="email"
+								inputMode="email"
+								autoComplete="email"
+								required
+								value={email}
+								onChange={(e) => setEmail(e.target.value)}
+								className="w-full rounded-lg bg-card-2 text-text placeholder:text-muted border border-white/10 px-4 py-3 outline-none focus:ring-2 focus:ring-primary/60"
+								placeholder="you@example.com"
+							/>
+						</div>
 
-        <button
-          onClick={handleSignup}
-          disabled={loading}
-          className="w-full py-2 rounded-md bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold hover:opacity-90 transition"
-        >
-          {loading ? 'Signing up...' : 'Sign Up'}
-        </button>
-        <p className="mt-4 text-center text-sm text-gray-700">
-  Already have an account?{' '}
-  <a href="/auth/login" className="text-blue-600 font-medium underline">
-    Log in
-  </a>
-</p>
-      </div>
-    </div>
-  )
+						<div className="space-y-2">
+							<label htmlFor="password" className="text-sm text-muted">
+								Password
+							</label>
+							<input
+								id="password"
+								type="password"
+								autoComplete="new-password"
+								required
+								value={password}
+								onChange={(e) => setPassword(e.target.value)}
+								className="w-full rounded-lg bg-card-2 text-text placeholder:text-muted border border-white/10 px-4 py-3 outline-none focus:ring-2 focus:ring-primary/60"
+								placeholder="••••••••"
+							/>
+						</div>
+
+						{error && (
+							<p className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">
+								{error}
+							</p>
+						)}
+						{message && (
+							<p className="text-sm text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-lg px-3 py-2 text-center">
+								{message}
+							</p>
+						)}
+
+						<Button
+							type="submit"
+							variant="continue" // forward/progression gradient
+							full // full-width
+							disabled={loading}
+						>
+							{loading ? 'Signing up…' : 'Sign Up'}
+						</Button>
+					</form>
+				</CardContent>
+
+				<CardFooter className="flex justify-center">
+					<p className="text-sm text-muted">
+						Already have an account?{' '}
+						<Link href="/auth/login" className="text-primary hover:opacity-90">
+							Log in
+						</Link>
+					</p>
+				</CardFooter>
+			</Card>
+		</Screen>
+	)
 }

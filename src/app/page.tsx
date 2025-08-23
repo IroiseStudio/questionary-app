@@ -1,106 +1,114 @@
-import Image from "next/image";
+import Screen from '@/components/ui/screen'
+import Container from '@/components/ui/container'
+import {
+	Card,
+	CardHeader,
+	CardTitle,
+	CardContent,
+	CardFooter,
+} from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Logo } from '@/components/ui/logo'
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <div className="text-4xl text-blue-600 font-bold">
-  Tailwind is working!
-</div>
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+	return (
+		<Screen>
+			<Container className="space-y-5">
+				<Logo />
+				{/* Top profile card (like image style) */}
+				<Card className="pt-6">
+					<CardHeader>
+						<CardTitle>Profile</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<div className="mx-auto h-28 w-28 rounded-full bg-gradient-to-tr from-primary to-primary-2 neon grid place-items-center">
+							<span className="text-sm font-semibold text-white/90">0:00</span>
+						</div>
+						<div className="grid grid-cols-2 gap-3 pt-3">
+							{['Instagram', 'Twitter', 'Facebook', 'Other'].map((label, i) => (
+								<div
+									key={label}
+									className={`rounded-2xl p-4 border border-white/10 ${
+										i === 1
+											? 'grad-primary text-white shadow-neon'
+											: 'bg-card-2'
+									}`}
+								>
+									<div className="text-xs text-muted">{label}</div>
+									<div className="text-lg font-semibold">0:00</div>
+								</div>
+							))}
+						</div>
+					</CardContent>
+					<CardFooter>
+						<Button variant="continue" size="md" full>
+							Accept
+						</Button>
+					</CardFooter>
+				</Card>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+				{/* Options / sliders placeholder */}
+				<Card>
+					<CardHeader>
+						<CardTitle>Options</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<div className="h-24 grid grid-cols-7 gap-2">
+							{Array.from({ length: 7 }).map((_, i) => (
+								<div key={i} className="relative flex items-end justify-center">
+									<div className="w-2 rounded-full bg-white/10">
+										<div className="w-2 rounded-full grad-primary h-16"></div>
+									</div>
+								</div>
+							))}
+						</div>
+						<div className="space-y-3 pt-2">
+							{Array.from({ length: 4 }).map((_, i) => (
+								<div
+									key={i}
+									className="flex items-center justify-between rounded-2xl bg-card-2 p-3"
+								>
+									<div className="text-sm text-muted">Lorem Ipsum</div>
+									<div className="h-6 w-11 rounded-full bg-white/10 relative">
+										<div className="absolute right-0 top-0 h-6 w-6 rounded-full grad-primary"></div>
+									</div>
+								</div>
+							))}
+						</div>
+					</CardContent>
+				</Card>
+
+				{/* Dashboard actions */}
+				<Card>
+					<CardHeader>
+						<CardTitle>Dashboard</CardTitle>
+					</CardHeader>
+					<CardContent className="space-y-2">
+						<div className="flex items-center justify-between rounded-2xl bg-card-2 p-3">
+							<div className="flex items-center gap-3">
+								<div className="h-9 w-9 rounded-full bg-white/10" />
+								<div>
+									<div className="text-sm">Lorem Ipsum</div>
+									<div className="text-xs text-muted">Subtitle</div>
+								</div>
+							</div>
+							<Button variant="validate" size="sm">
+								Optimize
+							</Button>
+						</div>
+
+						{Array.from({ length: 3 }).map((_, i) => (
+							<div
+								key={i}
+								className="flex items-center justify-between rounded-2xl bg-card-2 p-3"
+							>
+								<div className="text-sm">Lorem Ipsum</div>
+								<div className="text-xs text-muted">•••••</div>
+							</div>
+						))}
+					</CardContent>
+				</Card>
+			</Container>
+		</Screen>
+	)
 }
