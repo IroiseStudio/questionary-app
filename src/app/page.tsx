@@ -8,13 +8,14 @@ import {
 	CardFooter,
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Logo } from '@/components/ui/logo'
+import Logo from '@/components/ui/logo'
 
 export default function Home() {
 	return (
 		<Screen>
 			<Container className="space-y-5">
 				<Logo />
+				<Logo variant="icon" />
 				{/* Top profile card (like image style) */}
 				<Card className="pt-6">
 					<CardHeader>
