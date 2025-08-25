@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
 
 import Screen from '@/components/ui/screen'
 import {
@@ -14,6 +13,8 @@ import {
 	CardTitle,
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { useMemo } from 'react'
+import { createSupabaseBrowser } from '@/lib/supabase/browser'
 
 export default function SignupPage() {
 	const router = useRouter()
@@ -22,16 +23,21 @@ export default function SignupPage() {
 	const [error, setError] = useState<string | null>(null)
 	const [loading, setLoading] = useState(false)
 	const [message, setMessage] = useState<string | null>(null)
+	const supabase = useMemo(() => createSupabaseBrowser(), [])
 
 	async function handleSignup(e?: React.FormEvent) {
 		e?.preventDefault()
 		if (loading) return
-
 		setLoading(true)
 		setError(null)
 		setMessage(null)
 
-		const { error, data } = await supabase.auth.signUp({ email, password })
+		const origin = window.location.origin
+		const { data, error } = await supabase.auth.signUp({
+			email,
+			password,
+			options: { emailRedirectTo: `${origin}/auth/callback` },
+		})
 
 		if (error) {
 			setError(error.message)
@@ -39,15 +45,13 @@ export default function SignupPage() {
 			return
 		}
 
-		// If email confirmations are enabled, Supabase will send a magic link.
-		if (data?.user && !data?.session) {
+		if (data.user && !data.session) {
 			setMessage('Check your email to confirm your account.')
 			setLoading(false)
 			return
 		}
 
-		// If you’ve disabled confirmations in Supabase (not recommended), you may get a session directly:
-		router.push('/dashboard')
+		router.push('/home')
 	}
 
 	return (

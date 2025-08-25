@@ -14,58 +14,29 @@ import IdeasCard from '@/components/blocks/surveys/ideas-card'
 import SearchBar from '@/components/blocks/surveys/search-bar'
 import { Sparkles, ListChecks } from 'lucide-react'
 import SuggestedList from '@/components/blocks/surveys/suggested-list'
-import { supabase } from '@/lib/supabase'
+import { useSurveys } from '@/hooks/surveys/use-surveys'
+import Spinner from '@/components/ui/spinner'
 
 export default function HomePage() {
 	const router = useRouter()
 	const [q, setQ] = useState('')
 	const [menuOpen, setMenuOpen] = useState(false)
+	const { data, loading } = useSurveys(q)
 
-	// TODO: replace mocks with Supabase queries
-	const suggested = useMemo(
-		() => [
-			{
-				id: 'imagination',
-				title: 'Imagination Style',
-				tags: ['personality', 'creative'],
-				count: 12,
-			},
-			{
-				id: 'career-interests',
-				title: 'Career Interests (RIASEC)',
-				tags: ['career', 'student'],
-				count: 18,
-			},
-			{
-				id: 'growth-mindset',
-				title: 'Growth Mindset',
-				tags: ['learning'],
-				count: 10,
-			},
-		],
-		[]
-	)
-
-	const library = useMemo(
-		() => [
-			{ id: 'love-languages', title: 'Love Languages', count: 15 },
-			{ id: 'focus-habits', title: 'Focus & Habits', count: 10 },
-			{ id: 'wellbeing', title: 'Well‑Being Snapshot', count: 8 },
-			{ id: 'decision-style', title: 'Decision Style', count: 9 },
-			{ id: 'risk-tolerance', title: 'Risk Tolerance', count: 7 },
-		],
-		[]
-	)
+	const suggested = data.slice(0, 3).map((s) => ({
+		id: s.id,
+		title: s.title,
+		tags: s.tags,
+		count: s.question_count,
+	}))
+	const library = data
+		.slice(0, 10)
+		.map((s) => ({ id: s.id, title: s.title, count: s.question_count }))
 
 	const inProgress = useMemo(
 		() => ({ id: 'imagination', title: 'Imagination Style', progress: 0.45 }),
 		[]
 	)
-
-	async function handleLogout() {
-		await supabase.auth.signOut()
-		router.push('/auth/login')
-	}
 
 	function onNavigate(href: string) {
 		setMenuOpen(false)
@@ -96,7 +67,7 @@ export default function HomePage() {
 					subtitle="Based on your profile and history"
 					icon={<Sparkles className="h-4 w-4" />}
 				/>
-				<SuggestedList items={suggested} />
+				{loading ? <Spinner /> : <SuggestedList items={suggested} />}
 
 				{/* From the library */}
 				<SectionHeader
@@ -104,7 +75,7 @@ export default function HomePage() {
 					subtitle="Reusable, science‑backed surveys"
 					icon={<ListChecks className="h-4 w-4" />}
 				/>
-				<LibraryCarousel items={library} />
+				{loading ? <Spinner /> : <LibraryCarousel items={library} />}
 
 				{/* Give me ideas */}
 				<IdeasCard seed={q} />
@@ -120,7 +91,6 @@ export default function HomePage() {
 				open={menuOpen}
 				onClose={() => setMenuOpen(false)}
 				onNavigate={onNavigate}
-				onLogout={handleLogout}
 			/>
 		</Screen>
 	)

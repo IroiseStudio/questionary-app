@@ -11,6 +11,8 @@ import {
 	LogOutIcon,
 	XIcon,
 } from '@/components/icons/custom-icons'
+import { useLogout } from '@/hooks/use-logout'
+import Spinner from '@/components/ui/spinner'
 
 type IconCmp = React.ComponentType<React.SVGProps<SVGSVGElement>>
 
@@ -30,15 +32,9 @@ type Props = {
 	open: boolean
 	onClose: () => void
 	onNavigate: (href: string) => void
-	onLogout: () => void
 }
 
-export default function AppMenu({
-	open,
-	onClose,
-	onNavigate,
-	onLogout,
-}: Props) {
+export default function AppMenu({ open, onClose, onNavigate }: Props) {
 	React.useEffect(() => {
 		function onKey(e: KeyboardEvent) {
 			if (e.key === 'Escape') onClose()
@@ -46,6 +42,8 @@ export default function AppMenu({
 		if (open) window.addEventListener('keydown', onKey)
 		return () => window.removeEventListener('keydown', onKey)
 	}, [open, onClose])
+
+	const { handleLogout, loading } = useLogout()
 
 	return (
 		<div
@@ -111,7 +109,9 @@ export default function AppMenu({
 						icon={<LogOutIcon className="h-5 w-5" />}
 						label="Log out"
 						variant="destructive"
-						onClick={onLogout}
+						onClick={handleLogout}
+						disabled={loading}
+						right={loading ? <Spinner size="sm" /> : null}
 					/>
 				</div>
 			</aside>

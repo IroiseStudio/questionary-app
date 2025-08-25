@@ -1,8 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
 
 import Screen from '@/components/ui/screen'
 import {
@@ -13,23 +12,36 @@ import {
 	CardTitle,
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { useMemo } from 'react'
+import { createSupabaseBrowser } from '@/lib/supabase/browser'
+import { useSearchParams } from 'next/navigation'
 
 export default function UpdatePasswordPage() {
+	const supabase = useMemo(() => createSupabaseBrowser(), [])
+	const qp = useSearchParams()
 	const router = useRouter()
 	const [password, setPassword] = useState('')
 	const [error, setError] = useState<string | null>(null)
 	const [message, setMessage] = useState<string | null>(null)
 	const [loading, setLoading] = useState(false)
 
+	useEffect(() => {
+		;(async () => {
+			const code = qp.get('code')
+			if (code) {
+				// exchange if the provider sent the user straight here
+				await supabase.auth.exchangeCodeForSession(code)
+			}
+		})()
+	}, [qp, supabase])
+
 	async function handleUpdate(e?: React.FormEvent) {
 		e?.preventDefault()
 		if (loading || !password) return
-
 		setLoading(true)
 		setError(null)
 
 		const { error } = await supabase.auth.updateUser({ password })
-
 		if (error) {
 			setError(error.message)
 			setLoading(false)
@@ -37,8 +49,7 @@ export default function UpdatePasswordPage() {
 		}
 
 		setMessage('Password updated successfully. Redirecting to login…')
-		// brief pause, then back to login
-		setTimeout(() => router.push('/auth/login'), 1500)
+		setTimeout(() => router.push('/auth/login'), 1200)
 		setLoading(false)
 	}
 

@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { supabase } from '@/lib/supabase'
 
 import Screen from '@/components/ui/screen'
 import {
@@ -13,28 +12,30 @@ import {
 	CardTitle,
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { useMemo } from 'react'
+import { createSupabaseBrowser } from '@/lib/supabase/browser'
 
 export default function ResetRequestPage() {
 	const [email, setEmail] = useState('')
 	const [message, setMessage] = useState<string | null>(null)
 	const [error, setError] = useState<string | null>(null)
 	const [loading, setLoading] = useState(false)
+	const supabase = useMemo(() => createSupabaseBrowser(), [])
 
 	async function handleReset(e?: React.FormEvent) {
 		e?.preventDefault()
 		if (loading) return
-
 		setError(null)
 		setMessage(null)
 		setLoading(true)
 
+		const origin = window.location.origin
 		const { error } = await supabase.auth.resetPasswordForEmail(email, {
-			redirectTo: `${window.location.origin}/auth/update-password`,
+			redirectTo: `${origin}/auth/callback?next=/auth/update-password`,
 		})
 
 		if (error) setError(error.message)
 		else setMessage('Check your email for the reset link.')
-
 		setLoading(false)
 	}
 

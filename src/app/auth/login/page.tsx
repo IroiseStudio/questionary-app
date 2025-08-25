@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { supabase } from '@/lib/supabase'
 
 import Screen from '@/components/ui/screen'
 import {
@@ -14,6 +13,8 @@ import {
 	CardTitle,
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { useMemo } from 'react'
+import { createSupabaseBrowser } from '@/lib/supabase/browser'
 
 export default function LoginPage() {
 	const router = useRouter()
@@ -21,11 +22,11 @@ export default function LoginPage() {
 	const [password, setPassword] = useState('')
 	const [error, setError] = useState<string | null>(null)
 	const [loading, setLoading] = useState(false)
+	const supabase = useMemo(() => createSupabaseBrowser(), [])
 
 	async function handleLogin(e?: React.FormEvent) {
 		e?.preventDefault()
 		if (loading) return
-
 		setLoading(true)
 		setError(null)
 
@@ -33,14 +34,15 @@ export default function LoginPage() {
 			email,
 			password,
 		})
-
 		if (error) {
 			setError(error.message)
 			setLoading(false)
 			return
 		}
 
-		router.push('/home')
+		const params = new URLSearchParams(window.location.search)
+		const to = params.get('redirect') || '/home'
+		router.push(to)
 	}
 
 	return (
